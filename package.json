@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node local-server.js",
     "preview": "node local-server.js",
-    "build": "node scripts/validate.js"
+    "build": "node scripts/validate.js && node scripts/build-static.js"
   },
   "keywords": [
     "creator",

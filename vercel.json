@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "node scripts/validate.js",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
