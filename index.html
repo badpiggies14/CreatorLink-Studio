@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CreatorLink Studio is an all-in-one portfolio, bio-link, analytics, and creator brand platform." />
+    <title>CreatorLink Studio | Premium Creator Portfolio Platform</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="blob blob-one" aria-hidden="true"></div>
+    <div class="blob blob-two" aria-hidden="true"></div>
+    <div class="blob blob-three" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="CreatorLink Studio home">
+        <span class="logo-mark">CL</span>
+        <span>CreatorLink Studio</span>
+      </a>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="#features">Features</a>
+        <a href="#templates">Templates</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#builder">Builder</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+      <div class="header-actions">
+        <button class="ghost-button" data-auth="signin">Sign In</button>
+        <button class="primary-button small" data-scroll="#builder">Start Free</button>
+        <button class="icon-button mobile-menu-button" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a href="#features">Features</a>
+      <a href="#templates">Templates</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#builder">Builder</a>
+      <a href="#pricing">Pricing</a>
+      <button class="primary-button small" data-scroll="#builder">Start Free</button>
+    </nav>
+
+    <main id="top">
+      <section class="hero section">
+        <div class="hero-copy reveal">
+          <div class="eyebrow"><span></span> Creator OS for the new internet</div>
+          <h1>Build your creator brand in one <em>beautiful link.</em></h1>
+          <p>CreatorLink Studio combines your portfolio, bio links, projects, services, analytics, and inquiries into one stunning creator page.</p>
+          <div class="hero-actions">
+            <button class="primary-button" data-scroll="#builder">Start Building</button>
+            <button class="secondary-button" data-scroll="#reel">View Demo</button>
+          </div>
+          <div class="trust-row">
+            <span>Trusted by modern</span>
+            <strong>Developers</strong>
+            <strong>Designers</strong>
+            <strong>Founders</strong>
+            <strong>Creators</strong>
+          </div>
+        </div>
+
+        <div class="hero-stage reveal delay-one">
+          <div class="phone-hero floating">
+            <div class="phone-speaker"></div>
+            <div class="creator-preview">
+              <div class="avatar gradient-a">M</div>
+              <h3>Maya Chen</h3>
+              <p>Product designer building luminous systems for ambitious teams.</p>
+              <div class="mini-socials"><span>Dr</span><span>Ig</span><span>Be</span></div>
+              <button>Book a Strategy Call</button>
+              <button>View Portfolio</button>
+              <button>Latest Case Study</button>
+            </div>
+          </div>
+          <div class="browser-card floating-slow">
+            <div class="browser-top"><span></span><span></span><span></span><b>creator.link/maya</b></div>
+            <div class="mock-dashboard">
+              <div class="mock-row"><i></i><strong>Audience growth</strong><em>+34%</em></div>
+              <div class="spark-bars"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+              <div class="mock-grid"><span></span><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="stat-float float-left">
+            <small>Profile views</small>
+            <strong>48.2k</strong>
+            <span>+34% this month</span>
+          </div>
+          <div class="stat-float float-right">
+            <small>Lead quality</small>
+            <strong>92%</strong>
+            <span>12 new inquiries</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section trusted reveal" id="trusted">
+        <div class="trusted-strip">
+          <span>Built for the way creators launch today</span>
+          <b>Portfolio</b><b>Bio Links</b><b>Services</b><b>Analytics</b><b>Inquiries</b>
+        </div>
+      </section>
+
+      <section class="section about reveal" id="about">
+        <div class="section-header">
+          <span class="eyebrow">Why it exists</span>
+          <h2>A creator brand should feel as serious as the work behind it.</h2>
+          <p>CreatorLink Studio replaces scattered link pages, outdated portfolios, and manual lead tracking with one beautiful command center for digital professionals.</p>
+        </div>
+        <div class="about-grid">
+          <div><strong>Beyond link-in-bio</strong><p>Publish links, case studies, services, proof, and contact flows in a page that feels premium.</p></div>
+          <div><strong>Built for opportunity</strong><p>Convert attention into projects, clients, followers, and revenue with cleaner visitor journeys.</p></div>
+          <div><strong>Designed to grow</strong><p>A calm dashboard helps creators edit, measure, and improve their brand from one place.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="section-header reveal">
+          <span class="eyebrow">Feature system</span>
+          <h2>Everything a modern creator profile needs.</h2>
+          <p>Animated, modular tools that make a public creator page feel like a launch-ready SaaS product.</p>
+        </div>
+        <div class="feature-grid" id="featureGrid"></div>
+      </section>
+
+      <section class="section steps-section" id="how">
+        <div class="section-header reveal">
+          <span class="eyebrow">How it works</span>
+          <h2>From scattered presence to polished creator brand.</h2>
+        </div>
+        <div class="steps-grid">
+          <article><span>01</span><h3>Shape your profile</h3><p>Add your bio, role, services, social proof, and brand mood.</p></article>
+          <article><span>02</span><h3>Curate your links</h3><p>Bring every destination into one clear, trackable link page.</p></article>
+          <article><span>03</span><h3>Publish and improve</h3><p>Track interest, capture inquiries, and sharpen the profile over time.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="templates">
+        <div class="section-header reveal">
+          <span class="eyebrow">Templates</span>
+          <h2>Start from a profile that already feels expensive.</h2>
+        </div>
+        <div class="template-grid" id="templateGrid"></div>
+      </section>
+
+      <section class="section dashboard-section" id="dashboard">
+        <div class="section-header reveal">
+          <span class="eyebrow">Dashboard preview</span>
+          <h2>Measure the brand you are building.</h2>
+        </div>
+        <div class="dashboard-shell reveal">
+          <aside>
+            <div class="brand compact"><span class="logo-mark">CL</span><span>Studio</span></div>
+            <button class="active">Overview</button><button>Links</button><button>Portfolio</button><button>Inquiries</button><button>Themes</button>
+          </aside>
+          <div class="dashboard-main">
+            <div class="dash-top">
+              <div><h3>Good evening, Maya</h3><p>Your public profile is converting 18% better this week.</p></div>
+              <button class="secondary-button" data-scroll="#profile">Preview Profile</button>
+            </div>
+            <div class="stat-grid" id="statGrid"></div>
+            <div class="dash-panels">
+              <div class="analytics-panel">
+                <div class="panel-title"><h4>Audience growth</h4><span>Last 30 days</span></div>
+                <div class="chart" id="chart"></div>
+              </div>
+              <div class="activity-panel">
+                <div class="panel-title"><h4>Recent activity</h4><span id="inquiryCount">0 saved inquiries</span></div>
+                <div id="activityList"></div>
+              </div>
+              <div class="completion-panel">
+                <div class="panel-title"><h4>Profile completion</h4><span>86%</span></div>
+                <div class="progress"><span></span></div>
+                <div class="quick-actions"><button data-scroll="#builder">Edit links</button><button data-scroll="#portfolio">Add project</button></div>
+              </div>
+              <div class="profile-mini-panel">
+                <div class="avatar gradient-a">M</div>
+                <strong>Maya Chen</strong>
+                <p>Public profile preview, services, links, and featured work.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section builder-section" id="builder">
+        <div class="section-header reveal">
+          <span class="eyebrow">Functional builder</span>
+          <h2>Build your creator page and watch it update live.</h2>
+        </div>
+        <div class="builder-layout reveal">
+          <div class="builder-panel">
+            <div class="tabs"><button class="tab active" data-tab="links">Bio Links</button><button class="tab" data-tab="portfolio">Portfolio</button><button class="tab" data-tab="ai">Creator AI</button></div>
+            <div class="tab-view active" id="linksTab">
+              <div class="toolbar"><h3>Bio-link builder</h3><button class="primary-button small" id="addLink">Add Link</button></div>
+              <div class="theme-picker" id="themePicker"></div>
+              <div id="linkEditor"></div>
+            </div>
+            <div class="tab-view" id="portfolioTab">
+              <div class="toolbar"><h3>Portfolio manager</h3><button class="primary-button small" id="addProject">Add Project</button></div>
+              <div id="projectEditor"></div>
+            </div>
+            <div class="tab-view" id="aiTab">
+              <div class="ai-card">
+                <h3>Creator AI Assistant</h3>
+                <p>Mock smart suggestions for sharpening your public creator profile. No API key required.</p>
+                <textarea id="aiInput" placeholder="Describe your creator work..."></textarea>
+                <button class="primary-button small" id="generateTips">Generate Ideas</button>
+                <div id="aiTips"></div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-preview" id="profile"></div>
+        </div>
+      </section>
+
+      <section class="section portfolio-showcase" id="portfolio">
+        <div class="section-header reveal">
+          <span class="eyebrow">Project grid</span>
+          <h2>Featured work, styled for credibility.</h2>
+        </div>
+        <div class="project-grid" id="projectGrid"></div>
+      </section>
+
+      <section class="section reel-section" id="reel">
+        <div class="section-header reveal">
+          <span class="eyebrow">Product reel</span>
+          <h2>A cinematic product walkthrough built into the site.</h2>
+        </div>
+        <div class="product-reel reveal">
+          <div class="reel-screen" id="reelScreen"></div>
+          <div class="reel-steps" id="reelSteps"></div>
+        </div>
+      </section>
+
+      <section class="section testimonials">
+        <div class="section-header reveal"><span class="eyebrow">Proof</span><h2>Made for creators who care about presentation.</h2></div>
+        <div class="testimonial-grid">
+          <blockquote>"This feels like a portfolio, CRM, and launch page had one very polished dashboard."<span>Aria Wells, Brand Designer</span></blockquote>
+          <blockquote>"The live preview made my profile feel real before I even published."<span>Noah Reed, Indie Developer</span></blockquote>
+          <blockquote>"Finally a link page that does not make my work look smaller than it is."<span>Lina Park, Photographer</span></blockquote>
+        </div>
+      </section>
+
+      <section class="section pricing" id="pricing">
+        <div class="section-header reveal">
+          <span class="eyebrow">Pricing</span>
+          <h2>Plans for first launches and serious studios.</h2>
+          <div class="billing-toggle"><button class="active" data-billing="monthly">Monthly</button><button data-billing="yearly">Yearly - save 20%</button></div>
+        </div>
+        <div class="pricing-grid" id="pricingGrid"></div>
+      </section>
+
+      <section class="section faq">
+        <div class="section-header reveal"><span class="eyebrow">FAQ</span><h2>Questions before you launch.</h2></div>
+        <div class="faq-list" id="faqList"></div>
+      </section>
+
+      <section class="section contact-section" id="contact">
+        <div class="section-header reveal">
+          <span class="eyebrow">Lead collection</span>
+          <h2>Turn visitors into real conversations.</h2>
+        </div>
+        <form class="contact-form reveal" id="contactForm">
+          <input name="name" placeholder="Your name" required />
+          <input name="email" type="email" placeholder="Email address" required />
+          <select name="service"><option>Brand strategy</option><option>Portfolio design</option><option>Web development</option><option>Photography</option></select>
+          <select name="budget"><option>$1k - $3k</option><option>$3k - $8k</option><option>$8k - $15k</option><option>$15k+</option></select>
+          <textarea name="message" placeholder="Tell me about your project" required></textarea>
+          <button class="primary-button" type="submit">Send Inquiry</button>
+        </form>
+      </section>
+
+      <section class="section final-cta reveal">
+        <h2>Launch one beautiful creator page today.</h2>
+        <p>Build your profile, add your links, showcase your work, and collect better opportunities from one polished studio.</p>
+        <button class="primary-button" data-scroll="#builder">Start Building</button>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div><a class="brand" href="#top"><span class="logo-mark">CL</span><span>CreatorLink Studio</span></a><p>The premium portfolio and bio-link platform for creators building serious digital brands.</p></div>
+      <div><h4>Product</h4><a href="#features">Features</a><a href="#templates">Templates</a><a href="#dashboard">Dashboard</a></div>
+      <div><h4>Resources</h4><a href="#about">Brand story</a><a href="#pricing">Pricing</a><a href="#builder">Demo builder</a></div>
+      <div><h4>Newsletter</h4><div class="newsletter"><input placeholder="Email address" /><button>Join</button></div><p>Copyright 2026 CreatorLink Studio</p></div>
+    </footer>
+
+    <div class="modal" id="authModal" aria-hidden="true">
+      <div class="modal-card">
+        <button class="icon-button close-modal" aria-label="Close">x</button>
+        <h3 id="authTitle">Sign In</h3>
+        <input id="authEmail" type="email" placeholder="Email address" />
+        <input id="authPassword" type="password" placeholder="Password" />
+        <button class="primary-button" id="authSubmit">Continue</button>
+        <button class="text-button" id="toggleAuth">Need an account? Sign up</button>
+        <button class="text-button" id="forgotAuth">Forgot password?</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="app.js"></script>
+  </body>
+</html>

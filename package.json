@@ -1,0 +1,20 @@
+{
+  "name": "creatorlink-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Premium animated SaaS website and functional frontend demo for CreatorLink Studio.",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node scripts/validate.js"
+  },
+  "keywords": [
+    "creator",
+    "portfolio",
+    "bio-link",
+    "saas",
+    "dashboard"
+  ],
+  "author": "CreatorLink Studio",
+  "license": "MIT"
+}
