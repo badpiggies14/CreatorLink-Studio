@@ -46,18 +46,18 @@ async function supabaseRequest(path, options = {}) {
 }
 
 const features = [
-  ["Links", "Bio-link builder", "Create a polished link hub with active toggles, theme controls, and instant publishing."],
-  ["Work", "Portfolio showcase", "Feature projects, outcomes, tools, demos, and case-study-ready presentation."],
-  ["Grid", "Project gallery", "Turn scattered work samples into a curated grid that looks investor and client ready."],
-  ["Theme", "Custom themes", "Choose premium gradients and branded surfaces without touching code."],
-  ["Social", "Social links", "Bring every channel into one clean, mobile-first creator identity."],
-  ["Lead", "Contact form", "Collect qualified project inquiries with budget, service type, and message context."],
-  ["Offer", "Service listing", "Package what you offer so visitors understand how to hire you."],
-  ["Data", "Analytics dashboard", "Track views, clicks, inquiries, growth, and profile completion."],
-  ["SEO", "SEO-ready profiles", "Give your public creator profile strong content structure and clear metadata."],
-  ["Phone", "Mobile-first design", "Every page is tuned for thumbs, narrow screens, and fast scanning."],
-  ["Brand", "Custom branding", "Make the profile feel like your own studio, not a generic link page."],
-  ["Fast", "Fast publishing", "Edit once, preview instantly, and keep the public page fresh."]
+  ["link", "Bio-link builder", "Create a polished link hub with active toggles, theme controls, and instant publishing."],
+  ["briefcase", "Portfolio showcase", "Feature projects, outcomes, tools, demos, and case-study-ready presentation."],
+  ["grid", "Project gallery", "Turn scattered work samples into a curated grid that looks investor and client ready."],
+  ["palette", "Custom themes", "Choose premium gradients and branded surfaces without touching code."],
+  ["share", "Social links", "Bring every channel into one clean, mobile-first creator identity."],
+  ["mail", "Contact form", "Collect qualified project inquiries with budget, service type, and message context."],
+  ["badge", "Service listing", "Package what you offer so visitors understand how to hire you."],
+  ["chart", "Analytics dashboard", "Track views, clicks, inquiries, growth, and profile completion."],
+  ["search", "SEO-ready profiles", "Give your public creator profile strong content structure and clear metadata."],
+  ["phone", "Mobile-first design", "Every page is tuned for thumbs, narrow screens, and fast scanning."],
+  ["spark", "Custom branding", "Make the profile feel like your own studio, not a generic link page."],
+  ["rocket", "Fast publishing", "Edit once, preview instantly, and keep the public page fresh."]
 ];
 
 const templates = [
@@ -128,10 +128,112 @@ function showToast(message) {
   showToast.timeout = setTimeout(() => toast.classList.remove("show"), 2600);
 }
 
+const avatarStyles = {
+  "Alex Rivera": ["#7dd3fc", "#6366f1", "#8b4513", "#f2c7a5", "#1e293b"],
+  "Maya Chen": ["#f9a8d4", "#7c3aed", "#111827", "#f4c7a1", "#7c3aed"],
+  "Iris Vale": ["#fde68a", "#fb7185", "#7c2d12", "#e8b58f", "#0f766e"],
+  "Nova Rae": ["#86efac", "#06b6d4", "#111827", "#8d5524", "#db2777"],
+  "Owen Blake": ["#bef264", "#14b8a6", "#51301d", "#d7a27b", "#2563eb"],
+  "Sel Sol": ["#f0abfc", "#f97316", "#3b0764", "#b06b45", "#be185d"],
+  "Kai Morgan": ["#67e8f9", "#8b5cf6", "#111827", "#c68642", "#0f172a"],
+  "Zara Moon": ["#fdba74", "#ec4899", "#4a2511", "#a96f50", "#0891b2"],
+  "Aria Wells": ["#f9a8d4", "#6366f1", "#111827", "#c68642", "#7c3aed"],
+  "Noah Reed": ["#93c5fd", "#06b6d4", "#59331a", "#d7a27b", "#334155"],
+  "Lina Park": ["#fcd34d", "#f97316", "#111827", "#f0b88b", "#be123c"]
+};
+
+function logoMarkSvg() {
+  return `
+    <svg class="logo-svg" viewBox="0 0 64 64" aria-hidden="true">
+      <defs><linearGradient id="logoGradient" x1="8" y1="8" x2="58" y2="58"><stop stop-color="#06b6d4"/><stop offset=".52" stop-color="#7c3aed"/><stop offset="1" stop-color="#ec4899"/></linearGradient></defs>
+      <rect width="64" height="64" rx="18" fill="url(#logoGradient)"/>
+      <circle cx="25" cy="24" r="9" fill="#fff" fill-opacity=".95"/>
+      <path d="M17 45c4.5-9 19.5-9 24 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+      <path d="M36 25h7a9 9 0 0 1 0 18h-8" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+      <path d="M39 34h-9" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+    </svg>`;
+}
+
+function iconSvg(type) {
+  const icons = {
+    link: '<path d="M9 12a4 4 0 0 1 4-4h4"/><path d="M15 8h2a4 4 0 0 1 0 8h-3"/><path d="M15 16h-2a4 4 0 0 1 0-8h3"/>',
+    briefcase: '<rect x="5" y="8" width="14" height="10" rx="2"/><path d="M9 8V6h6v2"/><path d="M5 13h14"/>',
+    grid: '<rect x="5" y="5" width="6" height="6" rx="1.5"/><rect x="13" y="5" width="6" height="6" rx="1.5"/><rect x="5" y="13" width="6" height="6" rx="1.5"/><rect x="13" y="13" width="6" height="6" rx="1.5"/>',
+    palette: '<path d="M12 4a8 8 0 0 0 0 16h1.2a1.8 1.8 0 0 0 1.2-3.1 1.4 1.4 0 0 1 1-2.4H16a4 4 0 0 0 0-8.5A8.6 8.6 0 0 0 12 4Z"/><circle cx="8.5" cy="11" r="1"/><circle cx="11" cy="8" r="1"/><circle cx="15" cy="9.5" r="1"/>',
+    share: '<circle cx="7" cy="12" r="2.2"/><circle cx="17" cy="7" r="2.2"/><circle cx="17" cy="17" r="2.2"/><path d="m9 11 6-3"/><path d="m9 13 6 3"/>',
+    mail: '<rect x="4" y="6" width="16" height="12" rx="2"/><path d="m5 8 7 5 7-5"/>',
+    badge: '<path d="M7 5h10l2 3v11H5V8Z"/><path d="M8 11h8"/><path d="M8 15h5"/><path d="m14 17 1.3 1.3L18 15.5"/>',
+    chart: '<path d="M5 19V5"/><path d="M5 19h15"/><path d="M8 16v-5"/><path d="M12 16V8"/><path d="M16 16v-8"/>',
+    search: '<circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/><path d="M8 11h6"/><path d="M11 8v6"/>',
+    phone: '<rect x="8" y="3" width="8" height="18" rx="2"/><path d="M11 18h2"/>',
+    spark: '<path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z"/><path d="m18 15 .8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8Z"/>',
+    rocket: '<path d="M13 5c3-1 5-1 6 0 1 1 1 3 0 6l-5 5-5-5Z"/><path d="m8 16-3 3 1-5"/><path d="m16 8-8 8"/><circle cx="15.5" cy="8.5" r="1.3"/>'
+  };
+  return `<svg class="visual-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[type] || icons.spark}</svg>`;
+}
+
+function creatorAvatar(name, sizeClass = "") {
+  const [c1, c2, hair, skin, shirt] = avatarStyles[name] || avatarStyles["Maya Chen"];
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  return `
+    <svg class="creator-avatar ${sizeClass}" viewBox="0 0 120 120" role="img" aria-label="${escapeAttr(name)} avatar">
+      <defs>
+        <linearGradient id="avatar-bg-${id}" x1="16" y1="10" x2="104" y2="110"><stop stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+      </defs>
+      <rect width="120" height="120" rx="34" fill="url(#avatar-bg-${id})"/>
+      <circle cx="92" cy="24" r="17" fill="#fff" opacity=".2"/>
+      <circle cx="31" cy="92" r="24" fill="#fff" opacity=".14"/>
+      <path d="M28 110c5-27 59-27 64 0Z" fill="${shirt}"/>
+      <circle cx="60" cy="58" r="27" fill="${skin}"/>
+      <path d="M33 54c2-27 39-39 58-13-8-3-17-3-26 0-10 3-20 2-32 13Z" fill="${hair}"/>
+      <path d="M35 63c2-11 4-18 10-24 3 8 15 12 39 11 2 4 3 8 3 13 0 19-12 32-27 32S35 82 35 63Z" fill="${skin}"/>
+      <circle cx="51" cy="64" r="2.6" fill="#0f172a"/>
+      <circle cx="70" cy="64" r="2.6" fill="#0f172a"/>
+      <path d="M53 78c5 4 11 4 16 0" fill="none" stroke="#8a4b35" stroke-width="3" stroke-linecap="round"/>
+      <path d="M42 55c4-3 9-4 14-2" fill="none" stroke="${hair}" stroke-width="4" stroke-linecap="round"/>
+      <path d="M66 53c5-2 10-1 14 2" fill="none" stroke="${hair}" stroke-width="4" stroke-linecap="round"/>
+    </svg>`;
+}
+
+function projectThumbnail(title) {
+  const key = title.toLowerCase();
+  if (key.includes("brand")) return brandThumbnail();
+  if (key.includes("mobile")) return mobileThumbnail();
+  if (key.includes("analytics")) return analyticsThumbnail();
+  return aiPortfolioThumbnail();
+}
+
+function aiPortfolioThumbnail() {
+  return `<div class="project-visual ai-thumb"><div class="visual-browser"><span></span><span></span><span></span></div><div class="visual-profile">${creatorAvatar("Maya Chen", "tiny-avatar")}<div><b>AI Profile</b><i></i><i></i></div></div><div class="spark-cluster"><b></b><b></b><b></b></div></div>`;
+}
+
+function brandThumbnail() {
+  return `<div class="project-visual brand-thumb"><div class="brand-tile">${logoMarkSvg()}</div><div class="palette-row"><span></span><span></span><span></span><span></span></div><div class="brand-lines"><i></i><i></i><i></i></div></div>`;
+}
+
+function mobileThumbnail() {
+  return `<div class="project-visual mobile-thumb"><div class="mini-phone"><i></i><b></b><span></span><span></span><span></span></div><div class="mini-phone alt"><i></i><b></b><span></span><span></span><span></span></div></div>`;
+}
+
+function analyticsThumbnail() {
+  return `<div class="project-visual analytics-thumb"><div class="chart-card"><b></b><span></span><span></span><span></span><span></span></div><div class="line-chart"><i></i><i></i><i></i></div></div>`;
+}
+
+function reelVisual(index) {
+  const visuals = [
+    `<div class="reel-ui profile-scene">${creatorAvatar("Maya Chen", "reel-avatar")}<b>Maya Chen</b><i></i><i></i><i></i></div>`,
+    `<div class="reel-ui links-scene"><span>${iconSvg("link")} Portfolio</span><span>${iconSvg("mail")} Book a call</span><span>${iconSvg("share")} Social kit</span></div>`,
+    `<div class="reel-ui work-scene">${projectThumbnail("AI Portfolio Website")}${projectThumbnail("Brand Identity System")}</div>`,
+    `<div class="reel-ui growth-scene"><span></span><span></span><span></span><span></span><span></span><b>+34%</b></div>`,
+    `<div class="reel-ui share-scene">${logoMarkSvg()}<b>creator.link/maya</b><div class="qr-grid">${Array.from({ length: 16 }, (_, i) => `<span class="${i % 3 === 0 ? "on" : ""}"></span>`).join("")}</div></div>`
+  ];
+  return visuals[index] || visuals[0];
+}
+
 function renderFeatures() {
   $("#featureGrid").innerHTML = features.map(([icon, title, description], index) => `
     <article class="feature-card reveal" style="transition-delay:${Math.min(index * 28, 220)}ms">
-      <div class="feature-icon">${icon}</div>
+      <div class="feature-icon">${iconSvg(icon)}</div>
       <h3>${title}</h3>
       <p>${description}</p>
     </article>
@@ -143,7 +245,7 @@ function renderTemplates() {
     <article class="template-card reveal" style="--c1:${c1};--c2:${c2}">
       <div class="template-thumb">
         <div class="mini-profile">
-          <div class="avatar" style="width:3.3rem;height:3.3rem;margin:0 0 .8rem;background:linear-gradient(135deg,${c1},${c2})">${name[0]}</div>
+          ${creatorAvatar(name, "template-avatar")}
           <strong>${name}</strong>
           <p>${user}</p>
           <div class="mini-line" style="width:92%"></div>
@@ -313,7 +415,8 @@ function renderProfile() {
   const theme = themes.find((item) => item.name === selectedTheme) || themes[0];
   $("#profile").innerHTML = `
     <div class="public-profile" style="--themeA:${theme.a}">
-      <div class="avatar" style="background:linear-gradient(135deg,${theme.c1},${theme.c2})">M</div>
+      <div class="profile-cover">${logoMarkSvg()}</div>
+      ${creatorAvatar("Maya Chen", "profile-avatar")}
       <h3>Maya Chen</h3>
       <p>@mayamakes - Product designer and creative technologist crafting brand systems, launch pages, and creator tools.</p>
       <div class="mini-socials"><span>Dr</span><span>Ig</span><span>Be</span></div>
@@ -329,7 +432,7 @@ function renderProfile() {
 function renderProjectGrid() {
   $("#projectGrid").innerHTML = projects.map((project) => `
     <article class="project-card reveal" style="--c1:${project.c1};--c2:${project.c2}">
-      <div class="project-thumb"></div>
+      <div class="project-thumb">${projectThumbnail(project.title)}</div>
       <h3>${escapeText(project.title)}</h3>
       <p>${escapeText(project.description)}</p>
       <div class="tags">${project.stack.split(",").map((tag) => `<span>${escapeText(tag.trim())}</span>`).join("")}</div>
@@ -371,8 +474,31 @@ let reelIndex = 0;
 
 function renderReel() {
   const [title, detail] = reelScenes[reelIndex];
-  $("#reelScreen").innerHTML = `<div class="reel-visual"><div><span class="eyebrow"><span></span> Scene ${reelIndex + 1}</span><strong>${title}</strong><p>${detail}</p><div class="reel-art"><span></span><span></span><span></span></div></div></div>`;
+  $("#reelScreen").innerHTML = `<div class="reel-visual"><div><span class="eyebrow"><span></span> Scene ${reelIndex + 1}</span><strong>${title}</strong><p>${detail}</p>${reelVisual(reelIndex)}</div></div>`;
   $("#reelSteps").innerHTML = reelScenes.map((scene, index) => `<div class="reel-step ${index === reelIndex ? "active" : ""}">${index + 1}. ${scene[0]}</div>`).join("");
+}
+
+function hydrateStaticVisuals() {
+  document.querySelectorAll(".logo-mark").forEach((node) => {
+    node.innerHTML = logoMarkSvg();
+  });
+  document.querySelectorAll("[data-avatar='Maya Chen']").forEach((node) => {
+    node.innerHTML = creatorAvatar("Maya Chen", "hero-face");
+  });
+  document.querySelectorAll(".profile-mini-panel .avatar").forEach((node) => {
+    node.outerHTML = creatorAvatar("Maya Chen", "dashboard-avatar");
+  });
+  const testimonials = [
+    ["Aria Wells", ".testimonial-grid blockquote:nth-child(1)"],
+    ["Noah Reed", ".testimonial-grid blockquote:nth-child(2)"],
+    ["Lina Park", ".testimonial-grid blockquote:nth-child(3)"]
+  ];
+  testimonials.forEach(([name, selector]) => {
+    const node = document.querySelector(selector);
+    if (node && !node.querySelector(".testimonial-face")) {
+      node.insertAdjacentHTML("afterbegin", creatorAvatar(name, "testimonial-face"));
+    }
+  });
 }
 
 function escapeAttr(value) {
@@ -582,6 +708,7 @@ function revealVisible() {
 
 async function init() {
   const loadedFromSupabase = await loadSupabaseState();
+  hydrateStaticVisuals();
   renderFeatures();
   renderTemplates();
   renderDashboard();
