@@ -12,6 +12,39 @@ const store = {
   }
 };
 
+const SUPABASE_PROFILE_SLUG = "mayamakes";
+const supabaseConfig = window.CREATORLINK_SUPABASE || {};
+const supabaseUrl = String(supabaseConfig.url || "").replace(/\/$/, "");
+const supabaseAnonKey = String(supabaseConfig.anonKey || "");
+let supabaseReady = Boolean(
+  supabaseUrl &&
+  supabaseAnonKey &&
+  !supabaseAnonKey.includes("PASTE") &&
+  supabaseAnonKey.length > 20
+);
+let syncTimer = null;
+
+async function supabaseRequest(path, options = {}) {
+  if (!supabaseReady) throw new Error("Supabase is not configured");
+  const response = await fetch(`${supabaseUrl}/rest/v1/${path}`, {
+    method: options.method || "GET",
+    headers: {
+      apikey: supabaseAnonKey,
+      Authorization: `Bearer ${supabaseAnonKey}`,
+      "Content-Type": "application/json",
+      Prefer: options.prefer || "return=representation"
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined
+  });
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(details || `Supabase request failed with ${response.status}`);
+  }
+  if (response.status === 204) return null;
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
+}
+
 const features = [
   ["Links", "Bio-link builder", "Create a polished link hub with active toggles, theme controls, and instant publishing."],
   ["Work", "Portfolio showcase", "Feature projects, outcomes, tools, demos, and case-study-ready presentation."],
@@ -78,6 +111,7 @@ const faqs = [
 
 let links = store.get("cls_links", defaultLinks);
 let projects = store.get("cls_projects", defaultProjects);
+let inquiries = store.get("cls_inquiries", []);
 let selectedTheme = store.get("cls_theme", themes[0].name);
 let billing = "monthly";
 let authMode = "signin";
@@ -134,7 +168,7 @@ function renderDashboard() {
 }
 
 function getInquiries() {
-  return store.get("cls_inquiries", []);
+  return inquiries;
 }
 
 function renderActivity() {
@@ -162,6 +196,85 @@ function persist() {
   renderProfile();
   renderProjectGrid();
   renderDashboard();
+  queueSupabaseSync();
+}
+
+function queueSupabaseSync() {
+  if (!supabaseReady) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => {
+    syncSupabaseState().catch((error) => {
+      console.warn("Supabase sync failed", error);
+      showToast("Saved locally. Supabase sync needs attention.");
+    });
+  }, 700);
+}
+
+async function syncSupabaseState() {
+  const linkRows = links.map((link, position) => ({
+    profile_slug: SUPABASE_PROFILE_SLUG,
+    title: link.title,
+    url: link.url,
+    active: Boolean(link.active),
+    position
+  }));
+  const projectRows = projects.map((project, position) => ({
+    profile_slug: SUPABASE_PROFILE_SLUG,
+    title: project.title,
+    description: project.description,
+    category: project.category,
+    stack: project.stack,
+    demo: project.demo,
+    github: project.github,
+    c1: project.c1,
+    c2: project.c2,
+    position
+  }));
+
+  await supabaseRequest(`creator_profiles?slug=eq.${SUPABASE_PROFILE_SLUG}`, {
+    method: "PATCH",
+    prefer: "return=minimal",
+    body: { theme: selectedTheme, updated_at: new Date().toISOString() }
+  });
+  await supabaseRequest(`creator_links?profile_slug=eq.${SUPABASE_PROFILE_SLUG}`, { method: "DELETE", prefer: "return=minimal" });
+  if (linkRows.length) await supabaseRequest("creator_links", { method: "POST", prefer: "return=minimal", body: linkRows });
+  await supabaseRequest(`creator_projects?profile_slug=eq.${SUPABASE_PROFILE_SLUG}`, { method: "DELETE", prefer: "return=minimal" });
+  if (projectRows.length) await supabaseRequest("creator_projects", { method: "POST", prefer: "return=minimal", body: projectRows });
+}
+
+async function loadSupabaseState() {
+  if (!supabaseReady) return false;
+  try {
+    const [profileRows, linkRows, projectRows, inquiryRows] = await Promise.all([
+      supabaseRequest(`creator_profiles?slug=eq.${SUPABASE_PROFILE_SLUG}&select=theme&limit=1`),
+      supabaseRequest(`creator_links?profile_slug=eq.${SUPABASE_PROFILE_SLUG}&select=title,url,active&order=position.asc`),
+      supabaseRequest(`creator_projects?profile_slug=eq.${SUPABASE_PROFILE_SLUG}&select=title,description,category,stack,demo,github,c1,c2&order=position.asc`),
+      supabaseRequest(`creator_inquiries?profile_slug=eq.${SUPABASE_PROFILE_SLUG}&select=name,email,service,budget,message,created_at&order=created_at.desc&limit=20`)
+    ]);
+    if (profileRows?.[0]?.theme) selectedTheme = profileRows[0].theme;
+    if (Array.isArray(linkRows) && linkRows.length) links = linkRows;
+    if (Array.isArray(projectRows) && projectRows.length) projects = projectRows;
+    if (Array.isArray(inquiryRows)) {
+      inquiries = inquiryRows.map((item) => ({
+        name: item.name,
+        email: item.email,
+        service: item.service,
+        budget: item.budget,
+        message: item.message,
+        createdAt: item.created_at
+      })).reverse();
+    }
+    store.set("cls_links", links);
+    store.set("cls_projects", projects);
+    store.set("cls_theme", selectedTheme);
+    store.set("cls_inquiries", inquiries);
+    return true;
+  } catch (error) {
+    supabaseReady = false;
+    console.warn("Supabase load failed", error);
+    showToast("Using local demo data. Check Supabase config.");
+    return false;
+  }
 }
 
 function renderLinkEditor() {
@@ -342,9 +455,9 @@ function bindEvents() {
   $("#contactForm").addEventListener("submit", (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target).entries());
-    const inquiries = getInquiries();
     inquiries.push({ ...data, createdAt: new Date().toISOString() });
     store.set("cls_inquiries", inquiries);
+    saveInquiryToSupabase(data);
     event.target.reset();
     renderDashboard();
     showToast("Inquiry saved to dashboard");
@@ -428,6 +541,25 @@ function updateProjectField(target) {
   persist();
 }
 
+function saveInquiryToSupabase(data) {
+  if (!supabaseReady) return;
+  supabaseRequest("creator_inquiries", {
+    method: "POST",
+    prefer: "return=minimal",
+    body: {
+      profile_slug: SUPABASE_PROFILE_SLUG,
+      name: data.name,
+      email: data.email,
+      service: data.service,
+      budget: data.budget,
+      message: data.message
+    }
+  }).catch((error) => {
+    console.warn("Supabase inquiry save failed", error);
+    showToast("Inquiry saved locally. Supabase save failed.");
+  });
+}
+
 function switchTab(name) {
   document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === name));
   document.querySelectorAll(".tab-view").forEach((view) => view.classList.remove("active"));
@@ -448,7 +580,8 @@ function revealVisible() {
   });
 }
 
-function init() {
+async function init() {
+  const loadedFromSupabase = await loadSupabaseState();
   renderFeatures();
   renderTemplates();
   renderDashboard();
@@ -472,6 +605,7 @@ function init() {
     const button = document.querySelector("[data-auth='signin']");
     if (button) button.textContent = "Studio";
   }
+  if (loadedFromSupabase) showToast("Connected to Supabase");
 }
 
 init();

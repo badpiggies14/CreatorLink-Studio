@@ -10,6 +10,7 @@ CreatorLink Studio is a bright, premium, animated frontend-only SaaS demo for an
 - Functional portfolio manager with editable project cards, gradient thumbnails, categories, and stack tags
 - Public creator profile preview with theme selector, bio links, featured projects, and copy-link action
 - Contact inquiry form saved to localStorage and surfaced in dashboard activity
+- Optional Supabase persistence for links, projects, theme, and inquiries
 - Mock sign in, sign up, forgot password, toast messages, and persisted demo login
 - Creator AI Assistant demo using local frontend logic with no API key required
 - Product reel section built with CSS and JavaScript scene animation
@@ -24,6 +25,7 @@ This version is delivered as a dependency-free production demo:
 - CSS
 - JavaScript
 - LocalStorage
+- Supabase REST API
 - Node.js static server
 
 The structure can be migrated later to Next.js, React, TypeScript, Tailwind CSS, Framer Motion, Lucide React, and chart libraries if a full package toolchain is introduced.
@@ -35,6 +37,32 @@ The structure can be migrated later to Next.js, React, TypeScript, Tailwind CSS,
 - Hugging Face: not required for runtime assets. All visuals are local CSS, gradients, mock UI cards, and generated shapes.
 - Remotion and HyperFrames: no renderer or package setup was required. The requested product walkthrough is implemented as a frontend motion reel fallback.
 - OpenAI Developers: no API key is required. The Creator AI Assistant is a local mock demo.
+
+## Supabase Setup
+
+The database schema has been created in this Supabase project:
+
+```text
+https://wuwvdeqbgjnjxxbhwaie.supabase.co
+```
+
+Tables:
+
+- `creator_profiles`
+- `creator_links`
+- `creator_projects`
+- `creator_inquiries`
+
+To enable live Supabase persistence in the browser, open `supabase-config.js` and paste your Supabase anon public key:
+
+```js
+window.CREATORLINK_SUPABASE = {
+  url: "https://wuwvdeqbgjnjxxbhwaie.supabase.co",
+  anonKey: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE"
+};
+```
+
+If the anon key is blank, the app automatically falls back to localStorage so the demo still works.
 
 ## Development
 
