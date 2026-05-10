@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const required = ["index.html", "styles.css", "app.js", "supabase-config.js", "README.md"];
+const required = ["index.html", "styles.css", "app.js", "supabase-config.js", "README.md", "local-server.js", "vercel.json"];
 const missing = required.filter((file) => !fs.existsSync(path.join(__dirname, "..", file)));
 
 if (missing.length) {

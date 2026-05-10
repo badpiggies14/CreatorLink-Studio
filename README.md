@@ -27,7 +27,7 @@ This version is delivered as a dependency-free production demo:
 - JavaScript
 - LocalStorage
 - Supabase REST API
-- Node.js static server
+- Static HTML deployment with a local Node.js preview server
 
 The structure can be migrated later to Next.js, React, TypeScript, Tailwind CSS, Framer Motion, Lucide React, and chart libraries if a full package toolchain is introduced.
 
@@ -83,7 +83,7 @@ For production, set `appUrl` in `supabase-config.js` to your public app URL, for
 ## Development
 
 ```bash
-node server.js
+npm run dev
 ```
 
 Open:
@@ -95,7 +95,7 @@ http://localhost:3000
 Use another port on Windows PowerShell:
 
 ```powershell
-$env:PORT=4000; node server.js
+$env:PORT=4000; npm run dev
 ```
 
 ## Build / Validation

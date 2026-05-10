@@ -4,8 +4,8 @@
   "private": true,
   "description": "Premium animated SaaS website and functional frontend demo for CreatorLink Studio.",
   "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js",
+    "dev": "node local-server.js",
+    "preview": "node local-server.js",
     "build": "node scripts/validate.js"
   },
   "keywords": [
