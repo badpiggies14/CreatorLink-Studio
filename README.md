@@ -11,6 +11,7 @@ CreatorLink Studio is a bright, premium, animated frontend-only SaaS demo for an
 - Public creator profile preview with theme selector, bio links, featured projects, and copy-link action
 - Contact inquiry form saved to localStorage and surfaced in dashboard activity
 - Optional Supabase persistence for links, projects, theme, and inquiries
+- Profile photo upload with optional Supabase Storage persistence
 - Mock sign in, sign up, forgot password, toast messages, and persisted demo login
 - Creator AI Assistant demo using local frontend logic with no API key required
 - Product reel section built with CSS and JavaScript scene animation
@@ -53,16 +54,31 @@ Tables:
 - `creator_projects`
 - `creator_inquiries`
 
+Storage bucket:
+
+- `avatars` - public bucket for profile photos, 5MB limit, JPG/PNG/WebP
+
 To enable live Supabase persistence in the browser, open `supabase-config.js` and paste your Supabase anon public key:
 
 ```js
 window.CREATORLINK_SUPABASE = {
   url: "https://wuwvdeqbgjnjxxbhwaie.supabase.co",
-  anonKey: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE"
+  anonKey: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE",
+  appUrl: ""
 };
 ```
 
 If the anon key is blank, the app automatically falls back to localStorage so the demo still works.
+
+## Public Profile Route
+
+The demo profile is available at:
+
+```text
+http://localhost:3000/u/mayamakes/
+```
+
+For production, set `appUrl` in `supabase-config.js` to your public app URL, for example `https://creator.link`. Profile links will then use `/u/mayamakes` on that domain.
 
 ## Development
 

@@ -17,4 +17,10 @@ for (const asset of ["styles.css", "supabase-config.js", "app.js"]) {
   }
 }
 
+const publicProfile = path.join(__dirname, "..", "u", "mayamakes", "index.html");
+if (!fs.existsSync(publicProfile)) {
+  console.error("Missing public profile route: u/mayamakes/index.html");
+  process.exit(1);
+}
+
 console.log("Build validation passed. Static production demo is ready.");

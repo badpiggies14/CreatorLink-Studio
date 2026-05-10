@@ -16,6 +16,7 @@ const SUPABASE_PROFILE_SLUG = "mayamakes";
 const supabaseConfig = window.CREATORLINK_SUPABASE || {};
 const supabaseUrl = String(supabaseConfig.url || "").replace(/\/$/, "");
 const supabaseAnonKey = String(supabaseConfig.anonKey || "");
+const configuredAppUrl = String(supabaseConfig.appUrl || "").replace(/\/$/, "");
 let supabaseReady = Boolean(
   supabaseUrl &&
   supabaseAnonKey &&
@@ -45,6 +46,25 @@ async function supabaseRequest(path, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
+async function supabaseStorageRequest(path, file) {
+  if (!supabaseReady) throw new Error("Supabase is not configured");
+  const response = await fetch(`${supabaseUrl}/storage/v1/object/${path}`, {
+    method: "POST",
+    headers: {
+      apikey: supabaseAnonKey,
+      Authorization: `Bearer ${supabaseAnonKey}`,
+      "Content-Type": file.type,
+      "x-upsert": "true"
+    },
+    body: file
+  });
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(details || `Supabase storage failed with ${response.status}`);
+  }
+  return `${supabaseUrl}/storage/v1/object/public/${path}`;
+}
+
 const features = [
   ["link", "Bio-link builder", "Create a polished link hub with active toggles, theme controls, and instant publishing."],
   ["briefcase", "Portfolio showcase", "Feature projects, outcomes, tools, demos, and case-study-ready presentation."],
@@ -72,12 +92,12 @@ const templates = [
 ];
 
 const defaultLinks = [
-  { title: "Portfolio", url: "https://creator.link/portfolio", active: true },
+  { title: "Portfolio", url: "#portfolio", active: true },
   { title: "YouTube", url: "https://youtube.com", active: true },
   { title: "GitHub", url: "https://github.com", active: true },
   { title: "Instagram", url: "https://instagram.com", active: true },
   { title: "Book a Call", url: "https://cal.com", active: true },
-  { title: "Latest Project", url: "https://creator.link/latest", active: true }
+  { title: "Latest Project", url: "#reel", active: true }
 ];
 
 const defaultProjects = [
@@ -112,9 +132,17 @@ const faqs = [
 let links = store.get("cls_links", defaultLinks);
 let projects = store.get("cls_projects", defaultProjects);
 let inquiries = store.get("cls_inquiries", []);
+let profile = store.get("cls_profile", {
+  slug: SUPABASE_PROFILE_SLUG,
+  name: "Maya Chen",
+  username: "@mayamakes",
+  bio: "Product designer and creative technologist crafting brand systems, launch pages, and creator tools.",
+  avatarUrl: ""
+});
 let selectedTheme = store.get("cls_theme", themes[0].name);
 let billing = "monthly";
 let authMode = "signin";
+let avatarUploading = false;
 
 function $(selector) {
   return document.querySelector(selector);
@@ -126,6 +154,21 @@ function showToast(message) {
   toast.classList.add("show");
   clearTimeout(showToast.timeout);
   showToast.timeout = setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
+function getCleanUsername(username = profile.username || profile.slug || SUPABASE_PROFILE_SLUG) {
+  return String(username).replace(/^@/, "").trim().toLowerCase() || SUPABASE_PROFILE_SLUG;
+}
+
+function getPublicProfileUrl(username = profile.username) {
+  const clean = getCleanUsername(username);
+  const isLocal = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const base = configuredAppUrl && !isLocal ? configuredAppUrl : window.location.origin;
+  return `${base}/u/${clean}`;
+}
+
+function getProfilePath(username = profile.username) {
+  return `/u/${getCleanUsername(username)}`;
 }
 
 const avatarStyles = {
@@ -195,6 +238,13 @@ function creatorAvatar(name, sizeClass = "") {
     </svg>`;
 }
 
+function profileAvatar(name = "Maya Chen", sizeClass = "") {
+  if (profile.avatarUrl) {
+    return `<img class="creator-avatar uploaded-avatar ${sizeClass}" src="${escapeAttr(profile.avatarUrl)}" alt="${escapeAttr(name)} profile photo" />`;
+  }
+  return creatorAvatar(name, sizeClass);
+}
+
 function projectThumbnail(title) {
   const key = title.toLowerCase();
   if (key.includes("brand")) return brandThumbnail();
@@ -204,7 +254,7 @@ function projectThumbnail(title) {
 }
 
 function aiPortfolioThumbnail() {
-  return `<div class="project-visual ai-thumb"><div class="visual-browser"><span></span><span></span><span></span></div><div class="visual-profile">${creatorAvatar("Maya Chen", "tiny-avatar")}<div><b>AI Profile</b><i></i><i></i></div></div><div class="spark-cluster"><b></b><b></b><b></b></div></div>`;
+  return `<div class="project-visual ai-thumb"><div class="visual-browser"><span></span><span></span><span></span></div><div class="visual-profile">${profileAvatar("Maya Chen", "tiny-avatar")}<div><b>AI Profile</b><i></i><i></i></div></div><div class="spark-cluster"><b></b><b></b><b></b></div></div>`;
 }
 
 function brandThumbnail() {
@@ -221,11 +271,11 @@ function analyticsThumbnail() {
 
 function reelVisual(index) {
   const visuals = [
-    `<div class="reel-ui profile-scene">${creatorAvatar("Maya Chen", "reel-avatar")}<b>Maya Chen</b><i></i><i></i><i></i></div>`,
+    `<div class="reel-ui profile-scene">${profileAvatar("Maya Chen", "reel-avatar")}<b>Maya Chen</b><i></i><i></i><i></i></div>`,
     `<div class="reel-ui links-scene"><span>${iconSvg("link")} Portfolio</span><span>${iconSvg("mail")} Book a call</span><span>${iconSvg("share")} Social kit</span></div>`,
     `<div class="reel-ui work-scene">${projectThumbnail("AI Portfolio Website")}${projectThumbnail("Brand Identity System")}</div>`,
     `<div class="reel-ui growth-scene"><span></span><span></span><span></span><span></span><span></span><b>+34%</b></div>`,
-    `<div class="reel-ui share-scene">${logoMarkSvg()}<b>creator.link/maya</b><div class="qr-grid">${Array.from({ length: 16 }, (_, i) => `<span class="${i % 3 === 0 ? "on" : ""}"></span>`).join("")}</div></div>`
+    `<div class="reel-ui share-scene">${logoMarkSvg()}<b>/u/mayamakes</b><div class="qr-grid">${Array.from({ length: 16 }, (_, i) => `<span class="${i % 3 === 0 ? "on" : ""}"></span>`).join("")}</div></div>`
   ];
   return visuals[index] || visuals[0];
 }
@@ -291,13 +341,34 @@ function renderThemePicker() {
   `).join("");
 }
 
+function renderProfilePhotoEditor() {
+  const node = $("#profilePhotoEditor");
+  if (!node) return;
+  node.innerHTML = `
+    <section class="profile-photo-card">
+      <div class="profile-photo-preview">${profileAvatar(profile.name, "photo-editor-avatar")}</div>
+      <div class="profile-photo-copy">
+        <h4>Profile Photo</h4>
+        <p>Upload a profile photo shown on your public creator page.</p>
+        <div class="profile-photo-actions">
+          <label class="secondary-button small ${avatarUploading ? "loading" : ""}" for="avatarUpload">${avatarUploading ? "Uploading..." : "Upload / Change"}</label>
+          <button class="ghost-button small" id="removeAvatar" type="button">Remove</button>
+        </div>
+        <input id="avatarUpload" type="file" accept="image/jpeg,image/jpg,image/png,image/webp" hidden />
+      </div>
+    </section>
+  `;
+}
+
 function persist() {
   store.set("cls_links", links);
   store.set("cls_projects", projects);
+  store.set("cls_profile", profile.avatarUrl.startsWith("blob:") ? { ...profile, avatarUrl: "" } : profile);
   store.set("cls_theme", selectedTheme);
   renderProfile();
   renderProjectGrid();
   renderDashboard();
+  hydrateStaticVisuals();
   queueSupabaseSync();
 }
 
@@ -336,7 +407,7 @@ async function syncSupabaseState() {
   await supabaseRequest(`creator_profiles?slug=eq.${SUPABASE_PROFILE_SLUG}`, {
     method: "PATCH",
     prefer: "return=minimal",
-    body: { theme: selectedTheme, updated_at: new Date().toISOString() }
+    body: { theme: selectedTheme, avatar_url: profile.avatarUrl || null, updated_at: new Date().toISOString() }
   });
   await supabaseRequest(`creator_links?profile_slug=eq.${SUPABASE_PROFILE_SLUG}`, { method: "DELETE", prefer: "return=minimal" });
   if (linkRows.length) await supabaseRequest("creator_links", { method: "POST", prefer: "return=minimal", body: linkRows });
@@ -348,12 +419,22 @@ async function loadSupabaseState() {
   if (!supabaseReady) return false;
   try {
     const [profileRows, linkRows, projectRows, inquiryRows] = await Promise.all([
-      supabaseRequest(`creator_profiles?slug=eq.${SUPABASE_PROFILE_SLUG}&select=theme&limit=1`),
+      supabaseRequest(`creator_profiles?slug=eq.${SUPABASE_PROFILE_SLUG}&select=slug,name,username,bio,theme,avatar_url&limit=1`),
       supabaseRequest(`creator_links?profile_slug=eq.${SUPABASE_PROFILE_SLUG}&select=title,url,active&order=position.asc`),
       supabaseRequest(`creator_projects?profile_slug=eq.${SUPABASE_PROFILE_SLUG}&select=title,description,category,stack,demo,github,c1,c2&order=position.asc`),
       supabaseRequest(`creator_inquiries?profile_slug=eq.${SUPABASE_PROFILE_SLUG}&select=name,email,service,budget,message,created_at&order=created_at.desc&limit=20`)
     ]);
-    if (profileRows?.[0]?.theme) selectedTheme = profileRows[0].theme;
+    if (profileRows?.[0]) {
+      const row = profileRows[0];
+      profile = {
+        slug: row.slug || SUPABASE_PROFILE_SLUG,
+        name: row.name || "Maya Chen",
+        username: row.username || "@mayamakes",
+        bio: row.bio || profile.bio,
+        avatarUrl: row.avatar_url || profile.avatarUrl || ""
+      };
+      if (row.theme) selectedTheme = row.theme;
+    }
     if (Array.isArray(linkRows) && linkRows.length) links = linkRows;
     if (Array.isArray(projectRows) && projectRows.length) projects = projectRows;
     if (Array.isArray(inquiryRows)) {
@@ -368,6 +449,7 @@ async function loadSupabaseState() {
     }
     store.set("cls_links", links);
     store.set("cls_projects", projects);
+    store.set("cls_profile", profile);
     store.set("cls_theme", selectedTheme);
     store.set("cls_inquiries", inquiries);
     return true;
@@ -376,6 +458,48 @@ async function loadSupabaseState() {
     console.warn("Supabase load failed", error);
     showToast("Using local demo data. Check Supabase config.");
     return false;
+  }
+}
+
+async function getProfileByUsername(username) {
+  const clean = getCleanUsername(username);
+  if (!supabaseReady) {
+    return clean === SUPABASE_PROFILE_SLUG ? profile : null;
+  }
+  const rows = await supabaseRequest(`creator_profiles?slug=eq.${clean}&select=slug,name,username,bio,theme,avatar_url&limit=1`);
+  if (!rows?.[0] && clean !== SUPABASE_PROFILE_SLUG) return null;
+  const row = rows?.[0];
+  if (!row) return profile;
+  return {
+    slug: row.slug,
+    name: row.name,
+    username: row.username,
+    bio: row.bio,
+    theme: row.theme,
+    avatarUrl: row.avatar_url || ""
+  };
+}
+
+async function getPublicProfileData(username) {
+  const clean = getCleanUsername(username);
+  try {
+    const publicProfile = await getProfileByUsername(clean);
+    if (!publicProfile) return null;
+    if (!supabaseReady) {
+      return { profile: publicProfile, links, projects };
+    }
+    const [publicLinks, publicProjects] = await Promise.all([
+      supabaseRequest(`creator_links?profile_slug=eq.${clean}&active=eq.true&select=title,url,active&order=position.asc`),
+      supabaseRequest(`creator_projects?profile_slug=eq.${clean}&select=title,description,category,stack,demo,github,c1,c2&order=position.asc`)
+    ]);
+    return {
+      profile: publicProfile,
+      links: Array.isArray(publicLinks) && publicLinks.length ? publicLinks : links.filter((link) => link.active),
+      projects: Array.isArray(publicProjects) && publicProjects.length ? publicProjects : projects
+    };
+  } catch (error) {
+    console.warn("Public profile load failed", error);
+    return clean === SUPABASE_PROFILE_SLUG ? { profile, links: links.filter((link) => link.active), projects } : null;
   }
 }
 
@@ -416,9 +540,9 @@ function renderProfile() {
   $("#profile").innerHTML = `
     <div class="public-profile" style="--themeA:${theme.a}">
       <div class="profile-cover">${logoMarkSvg()}</div>
-      ${creatorAvatar("Maya Chen", "profile-avatar")}
-      <h3>Maya Chen</h3>
-      <p>@mayamakes - Product designer and creative technologist crafting brand systems, launch pages, and creator tools.</p>
+      ${profileAvatar(profile.name, "profile-avatar")}
+      <h3>${escapeText(profile.name)}</h3>
+      <p>${escapeText(profile.username)} - ${escapeText(profile.bio)}</p>
       <div class="mini-socials"><span>Dr</span><span>Ig</span><span>Be</span></div>
       ${links.map((link) => `<a class="profile-link ${link.active ? "" : "disabled"}" href="${escapeAttr(link.url)}" target="_blank" rel="noreferrer">${escapeText(link.title)}</a>`).join("")}
       <div class="preview-projects">
@@ -427,6 +551,65 @@ function renderProfile() {
       <button class="secondary-button small" id="shareProfile" style="margin-top:1rem">Copy Profile Link</button>
     </div>
   `;
+}
+
+function renderPublicProfilePage(data) {
+  const main = document.querySelector("main");
+  const theme = themes.find((item) => item.name === (data.profile.theme || selectedTheme)) || themes[0];
+  const activeLinks = data.links.filter((link) => link.active !== false);
+  main.innerHTML = `
+    <section class="section public-page-shell">
+      <article class="public-page-card" style="--themeA:${theme.a}">
+        <div class="profile-cover">${logoMarkSvg()}</div>
+        ${data.profile.avatarUrl ? `<img class="creator-avatar uploaded-avatar public-page-avatar" src="${escapeAttr(data.profile.avatarUrl)}" alt="${escapeAttr(data.profile.name)} profile photo" />` : creatorAvatar(data.profile.name, "public-page-avatar")}
+        <h1>${escapeText(data.profile.name)}</h1>
+        <p class="public-username">${escapeText(data.profile.username || `@${data.profile.slug}`)}</p>
+        <p>${escapeText(data.profile.bio || profile.bio)}</p>
+        <div class="mini-socials"><span>Dr</span><span>Ig</span><span>Be</span></div>
+        <div class="public-links">
+          ${activeLinks.map((link) => `<a class="profile-link" href="${escapeAttr(link.url)}" target="_blank" rel="noreferrer">${escapeText(link.title)}</a>`).join("")}
+        </div>
+        <div class="preview-projects public-projects">
+          ${data.projects.slice(0, 4).map((project) => `<div class="preview-project"><strong>${escapeText(project.title)}</strong><p>${escapeText(project.category)} - ${escapeText(project.stack)}</p></div>`).join("")}
+        </div>
+        <div class="public-profile-actions">
+          <a class="primary-button" href="/#contact">Contact / Inquiry</a>
+          <button class="secondary-button" id="copyPublicProfile">Copy Profile Link</button>
+        </div>
+      </article>
+    </section>
+  `;
+  hydrateStaticVisuals();
+}
+
+function renderPublicNotFound(username) {
+  document.querySelector("main").innerHTML = `
+    <section class="section public-page-shell">
+      <article class="public-page-card">
+        ${logoMarkSvg()}
+        <h1>Profile not found</h1>
+        <p>We could not find a public creator page for @${escapeText(username)}.</p>
+        <button class="primary-button" onclick="window.location.href='/'">Back to CreatorLink Studio</button>
+      </article>
+    </section>
+  `;
+}
+
+async function initPublicRoute(username) {
+  hydrateStaticVisuals();
+  const data = await getPublicProfileData(username);
+  if (!data) {
+    renderPublicNotFound(username);
+    return;
+  }
+  renderPublicProfilePage(data);
+  document.addEventListener("click", (event) => {
+    if (event.target.id === "copyPublicProfile") {
+      navigator.clipboard?.writeText(getPublicProfileUrl(data.profile.username || username));
+      showToast("Profile link copied");
+    }
+  });
+  revealVisible();
 }
 
 function renderProjectGrid() {
@@ -483,10 +666,13 @@ function hydrateStaticVisuals() {
     node.innerHTML = logoMarkSvg();
   });
   document.querySelectorAll("[data-avatar='Maya Chen']").forEach((node) => {
-    node.innerHTML = creatorAvatar("Maya Chen", "hero-face");
+    node.innerHTML = profileAvatar(profile.name, "hero-face");
   });
   document.querySelectorAll(".profile-mini-panel .avatar").forEach((node) => {
-    node.outerHTML = creatorAvatar("Maya Chen", "dashboard-avatar");
+    node.outerHTML = profileAvatar(profile.name, "dashboard-avatar");
+  });
+  document.querySelectorAll(".profile-mini-panel .creator-avatar").forEach((node) => {
+    if (!node.classList.contains("dashboard-avatar")) node.outerHTML = profileAvatar(profile.name, "dashboard-avatar");
   });
   const testimonials = [
     ["Aria Wells", ".testimonial-grid blockquote:nth-child(1)"],
@@ -520,6 +706,11 @@ function bindEvents() {
     const authTarget = event.target.closest("[data-auth]");
     if (authTarget) openAuth(authTarget.dataset.auth);
 
+    const profileAction = event.target.closest("[data-profile-action]");
+    if (profileAction?.dataset.profileAction === "open") {
+      window.location.href = getProfilePath(profile.username);
+    }
+
     if (event.target.closest(".mobile-menu-button")) $(".mobile-nav").classList.toggle("open");
     if (event.target.matches(".close-modal")) $("#authModal").classList.remove("open");
 
@@ -547,11 +738,15 @@ function bindEvents() {
       showToast("Project added");
     }
 
+    if (event.target.id === "removeAvatar") {
+      removeProfileAvatar();
+    }
+
     handleLinkButtons(event.target);
     handleProjectButtons(event.target);
 
     if (event.target.id === "shareProfile") {
-      navigator.clipboard?.writeText("https://creator.link/mayamakes");
+      navigator.clipboard?.writeText(getPublicProfileUrl(profile.username));
       showToast("Profile link copied");
     }
 
@@ -576,6 +771,7 @@ function bindEvents() {
 
   document.addEventListener("change", (event) => {
     if (event.target.dataset.projectField === "palette") updateProjectField(event.target);
+    if (event.target.id === "avatarUpload") handleAvatarUpload(event.target.files?.[0]);
   });
 
   $("#contactForm").addEventListener("submit", (event) => {
@@ -686,6 +882,68 @@ function saveInquiryToSupabase(data) {
   });
 }
 
+function validateAvatarFile(file) {
+  const allowed = ["image/jpeg", "image/png", "image/webp"];
+  if (!file) return "Choose an image first.";
+  if (!allowed.includes(file.type)) return "Please upload a JPG, PNG, or WebP image.";
+  if (file.size > 5 * 1024 * 1024) return "Profile photo must be 5MB or smaller.";
+  return "";
+}
+
+async function uploadAvatar(file, userId = SUPABASE_PROFILE_SLUG) {
+  const ext = (file.name.split(".").pop() || "webp").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const path = `avatars/${userId}/profile.${ext}`;
+  return supabaseStorageRequest(path, file);
+}
+
+async function updateProfileAvatar(userId, avatarUrl) {
+  if (!supabaseReady) return;
+  await supabaseRequest(`creator_profiles?slug=eq.${userId}`, {
+    method: "PATCH",
+    prefer: "return=minimal",
+    body: { avatar_url: avatarUrl || null, updated_at: new Date().toISOString() }
+  });
+}
+
+async function handleAvatarUpload(file) {
+  const validation = validateAvatarFile(file);
+  if (validation) {
+    showToast(validation);
+    return;
+  }
+  avatarUploading = true;
+  renderProfilePhotoEditor();
+  try {
+    let avatarUrl = URL.createObjectURL(file);
+    profile = { ...profile, avatarUrl };
+    store.set("cls_profile", { ...profile, avatarUrl: "" });
+    renderProfile();
+    renderDashboard();
+    hydrateStaticVisuals();
+    renderProfilePhotoEditor();
+    if (supabaseReady) {
+      avatarUrl = await uploadAvatar(file, SUPABASE_PROFILE_SLUG);
+      await updateProfileAvatar(SUPABASE_PROFILE_SLUG, avatarUrl);
+      profile = { ...profile, avatarUrl };
+      persist();
+    }
+    showToast("Profile photo updated");
+  } catch (error) {
+    console.warn("Avatar upload failed", error);
+    showToast("Photo preview updated locally. Supabase upload failed.");
+  } finally {
+    avatarUploading = false;
+    renderProfilePhotoEditor();
+  }
+}
+
+function removeProfileAvatar() {
+  profile = { ...profile, avatarUrl: "" };
+  persist();
+  updateProfileAvatar(SUPABASE_PROFILE_SLUG, "").catch((error) => console.warn("Avatar reset failed", error));
+  showToast("Profile photo reset");
+}
+
 function switchTab(name) {
   document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === name));
   document.querySelectorAll(".tab-view").forEach((view) => view.classList.remove("active"));
@@ -707,12 +965,18 @@ function revealVisible() {
 }
 
 async function init() {
+  const routeMatch = window.location.pathname.match(/^\/u\/([^/]+)\/?$/);
+  if (routeMatch) {
+    await initPublicRoute(decodeURIComponent(routeMatch[1]));
+    return;
+  }
   const loadedFromSupabase = await loadSupabaseState();
   hydrateStaticVisuals();
   renderFeatures();
   renderTemplates();
   renderDashboard();
   renderThemePicker();
+  renderProfilePhotoEditor();
   renderLinkEditor();
   renderProjectEditor();
   renderProfile();
