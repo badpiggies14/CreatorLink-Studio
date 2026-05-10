@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "node scripts/validate.js",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/u/:username",
+      "destination": "/u/mayamakes/index.html"
+    },
+    {
+      "source": "/((?!.*\\.).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
